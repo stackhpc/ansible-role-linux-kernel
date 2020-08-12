@@ -9,3 +9,14 @@ kernel_version: ''
 
 # Reboot if kernel was updated
 reboot_on_kernel_update: true
+
+# Choose whether to install custom Yum repo to install kernel from
+kernel_manage_custom_repo: false
+# Variables to manage custom repo configuration
+kernel_custom_repo_name: ''
+kernel_custom_repo_baseurl: ''
+#kernel_custom_repo_description:
+#kernel_custom_repo_enabled:
+#kernel_custom_repo_gpgcheck:
+#kernel_custom_repo_gpgkey:
+#kernel_custom_repo_gpgkey_fingerprint:

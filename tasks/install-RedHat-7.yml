@@ -1,4 +1,30 @@
 ---
+- name: "Configure custom kernel repository if required"
+  when: kernel_manage_custom_repo | bool
+  block:
+    - name: "Install custom kernel yum repo"
+      yum_repository:
+        name: "{{ kernel_custom_repo_name }}"
+        description: "{{ kernel_custom_repo_description }}"
+        baseurl: "{{ kernel_custom_repo_baseurl }}"
+        gpgcheck: "{{ kernel_custom_repo_gpgcheck | default('no') }}"
+        gpgkey: "{{ kernel_custom_repo_gpgkey | default(omit) }}"
+        enabled: "{{ kernel_custom_repo_enabled | default('no') }}"
+      register: _kernel_custom_repo
+
+    - name: "Install custom kernel yum repo gpgkey"
+      rpm_key:
+        state: present
+        key: "{{ kernel_custom_repo_gpgkey }}"
+        fingerprint: "{{ kernel_custom_repo_gpgkey_fingerprint | default(omit) }}"
+      when: kernel_custom_repo_gpgkey is defined
+
+    - name: "Clean yum cache if repository updated"
+      command: yum clean all
+      args:
+        warn: false
+      when: _kernel_custom_repo.changed
+
 - name: Ensure CentOS Vault repositories list is up to date
   package:
     name: centos-release
@@ -8,7 +34,7 @@
   when: ansible_distribution == 'CentOS'
 
 - name: Get available kernel versions with YUM
-  command: yum list --enablerepo=C7.* --showduplicates kernel
+  command: "yum list --enablerepo=C7.* --enablerepo={{ kernel_custom_repo_name | default('custom.*',true) }} --showduplicates kernel"
   changed_when: false
   args:
     warn: false
