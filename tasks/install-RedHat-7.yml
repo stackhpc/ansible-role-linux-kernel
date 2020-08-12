@@ -1,0 +1,53 @@
+---
+- name: Ensure CentOS Vault repositories list is up to date
+  package:
+    name: centos-release
+    state: latest  # noqa 403
+  retries: 10
+  delay: 1
+  when: ansible_distribution == 'CentOS'
+
+- name: Get available kernel versions with YUM
+  command: yum list --enablerepo=C7.* --showduplicates kernel
+  changed_when: false
+  args:
+    warn: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+  register: yum_kernel_list
+
+- name: Set target YUM kernel version
+  set_fact: _kernel="{{ yum_kernel_list |
+                     rhel_kernel(kernel_version, ansible_kernel) }}"
+  when: yum_kernel_list is not skipped
+
+- name: Ensure kernel packages versions with YUM
+  yum:
+    name: "{{ item.name }}-{{ _kernel }}"
+    enablerepo: "{{ yum_kernel_list |
+                 rhel_repo(kernel_version, ansible_kernel) }}"
+    allow_downgrade: "{{ item.downgrade | default(false) }}"
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+    - item.when
+  with_items:
+    # Kernel and kernel-devel have multiversion support, so do not need
+    # to be downgrades
+    - name: kernel
+      when: true
+    - name: kernel-devel
+      when: install_kernel_headers | bool
+    - name: kernel-headers
+      when: install_kernel_headers | bool
+      downgrade: true
+    - name: perf
+      when: install_perf | bool
+      downgrade: true
+    - name: python-perf
+      when: install_perf | bool
+      downgrade: true
+    - name: bpftool
+      when: install_bpftool | bool
+      downgrade: true

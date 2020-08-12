@@ -1,6 +1,8 @@
 ---
 # Install kernel headers
 install_kernel_headers: true
+install_perf: false
+install_bpftool: false
 
 # Kernel version to install (Default to any version)
 kernel_version: ''

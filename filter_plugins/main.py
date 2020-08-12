@@ -211,6 +211,30 @@ def kernel_match(kernel, kernel_spec):
     """
     return kernel.startswith(kernel_spec)
 
+def rhel_kernel_path(grubby_info, kernel_version):
+    """
+    Return path to kernel image matching kernel_version.
+
+    Args:
+        grubby_info (dict): grubby --info ALL list output.
+        kernel_version (str): Kernel version selected.
+
+    Returns:
+       string: kernel version
+    """
+    kernels = list()
+
+    for line in grubby_info['stdout'].splitlines():
+        if line.startswith('kernel'):
+            kernel_path = line.strip().split('=')[1]
+            kernels.append(kernel_path)
+            if kernel_version in kernel_path:
+              return kernel_path
+
+    raise RuntimeError(
+        'No kernel image found matching version "%s". Available kernel versions: %s' % (
+            kernel_version,
+            ', '.join(kernels)))
 
 class FilterModule(object):
     """Return filter plugin"""
@@ -223,4 +247,5 @@ class FilterModule(object):
                 'deb_kernel': deb_kernel,
                 'deb_kernel_pkg': deb_kernel_pkg,
                 'deb_installed_kernel': deb_installed_kernel,
-                'kernel_match': kernel_match}
+                'kernel_match': kernel_match,
+                'rhel_kernel_path': rhel_kernel_path}

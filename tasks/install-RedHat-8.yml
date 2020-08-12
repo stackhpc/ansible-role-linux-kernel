@@ -1,0 +1,34 @@
+---
+- name: Get available kernel versions with DNF
+  command: dnf list --enablerepo=* --showduplicates kernel
+  changed_when: false
+  args:
+    warn: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version != "7"
+  register: dnf_kernel_list
+
+- name: Set target DNF kernel version
+  set_fact: _kernel="{{ dnf_kernel_list |
+                     rhel_kernel(kernel_version, ansible_kernel) }}"
+  when: dnf_kernel_list is not skipped
+
+- name: Ensure kernel packages versions with DNF
+  dnf:
+    name: "{{ item.name }}-{{ _kernel }}"
+    enablerepo: "{{ dnf_kernel_list |
+                 rhel_repo(kernel_version, ansible_kernel) }}"
+    allow_downgrade: true
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version != "7"
+    - item.when
+  with_items:
+    - name: kernel
+      when: true
+    - name: kernel-devel
+      when: install_kernel_headers | bool
+    - name: kernel-headers
+      when: install_kernel_headers | bool
+

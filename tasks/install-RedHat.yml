@@ -1,0 +1,23 @@
+---
+# Include version specific installation steps
+- include_tasks: "install-{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+
+# Ensure that installed kernel is set as the default kernel in the bootloader
+- name: "Get path to kernel image"
+  command: "grubby --info ALL"
+  changed_when: false
+  register: kernel_grubby_info
+
+- name: "Set path to kernel image"
+  set_fact: _kernel_new_image="{{ kernel_grubby_info |
+                              rhel_kernel_path(kernel_version) }}"
+
+- name: "Get default kernel from grubby"
+  command: "grubby --default-kernel"
+  changed_when: false
+  register: kernel_grubby_default
+
+- name: "Set default kernel in bootloader via grubby"
+  command: "grubby --set-default {{ _kernel_new_image }}"
+  when:
+    - _kernel_new_image == kernel_grubby_default
