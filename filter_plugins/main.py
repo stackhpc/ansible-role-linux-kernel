@@ -65,8 +65,7 @@ def rhel_repo(packages, kernel_version, current_version):
        str: repository name
     """
     return _rhel_kernel_info(
-        packages, kernel_version, current_version)['repo']
-
+        packages, kernel_version, current_version)['repo'].strip('@')
 
 def deb_kernel(packages, kernel_version, current_version):
     """
