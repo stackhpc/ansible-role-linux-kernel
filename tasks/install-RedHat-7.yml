@@ -25,7 +25,7 @@
         warn: false
       when: _kernel_custom_repo.changed
 
-- name: Ensure CentOS Vault repositories list is up to date
+- name: "Ensure CentOS Vault repositories list is up to date"
   package:
     name: centos-release
     state: latest  # noqa 403
@@ -33,7 +33,7 @@
   delay: 1
   when: ansible_distribution == 'CentOS'
 
-- name: Get available kernel versions with YUM
+- name: "Get available kernel versions with YUM"
   command: "yum list --enablerepo=C7.* --enablerepo={{ kernel_custom_repo_name | default('custom.*',true) }} --showduplicates kernel"
   changed_when: false
   args:
@@ -43,12 +43,12 @@
     - ansible_distribution_major_version == "7"
   register: yum_kernel_list
 
-- name: Set target YUM kernel version
+- name: "Set target YUM kernel version"
   set_fact: _kernel="{{ yum_kernel_list |
                      rhel_kernel(kernel_version, ansible_kernel) }}"
   when: yum_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with YUM
+- name: "Ensure kernel packages versions with YUM"
   yum:
     name: "{{ item.name }}-{{ _kernel }}"
     enablerepo: "{{ yum_kernel_list |

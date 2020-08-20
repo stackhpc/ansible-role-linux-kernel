@@ -1,33 +1,34 @@
 ---
-- name: Include OS-specific variables.
+- name: "Include OS-specific variables."
   include_vars: "{{ ansible_os_family }}.yml"
 
-- include_tasks: "install-{{ ansible_os_family }}.yml"
+- name: "Include OS-specific installaiton tasks"
+  include_tasks: "install-{{ ansible_os_family }}.yml"
 
-- name: Get /var/run/reboot-required stat
+- name: "Get /var/run/reboot-required stat"
   # Note: Should exist on Debian based OS if reboot is required
   stat:
     path: /var/run/reboot-required
   register: reboot_flag
 
-- name: Notify about Kernel update and reboot requierement
+- name: "Notify about Kernel update and reboot requierement"
   debug:
     msg: 'REBOOT REQUIRED, kernel version changed
           from {{ ansible_kernel }} to {{ _kernel }}.'
   when:
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
 
-- name: Ensure the new kernel is enabled by rebooting
+- name: "Ensure the new kernel is enabled by rebooting"
   reboot:
   when:
     - reboot_on_kernel_update | bool
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
 
-- name: Update facts
+- name: "Update facts"
   setup:
   when:
     - reboot_on_kernel_update | bool
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
 
-- name: "Include OS-specific kernel package cleanup plays"
+- name: "Include OS-specific kernel package cleanup tasks"
   include_tasks: "cleanup-{{ ansible_os_family }}.yml"

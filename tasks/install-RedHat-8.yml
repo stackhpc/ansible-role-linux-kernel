@@ -1,5 +1,5 @@
 ---
-- name: Get available kernel versions with DNF
+- name: "Get available kernel versions with DNF"
   command: dnf list --enablerepo=* --showduplicates kernel
   changed_when: false
   args:
@@ -9,12 +9,12 @@
     - ansible_distribution_major_version != "7"
   register: dnf_kernel_list
 
-- name: Set target DNF kernel version
+- name: "Set target DNF kernel version"
   set_fact: _kernel="{{ dnf_kernel_list |
                      rhel_kernel(kernel_version, ansible_kernel) }}"
   when: dnf_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with DNF
+- name: "Ensure kernel packages versions with DNF"
   dnf:
     name: "{{ item.name }}-{{ _kernel }}"
     enablerepo: "{{ dnf_kernel_list |

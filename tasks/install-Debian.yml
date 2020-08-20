@@ -1,30 +1,30 @@
 ---
-- name: Ensure APT cache is up to date
+- name: "Ensure APT cache is up to date"
   apt:
     update_cache: true
   changed_when: false
   when: ansible_os_family == 'Debian'
 
-- name: Get available kernel versions with APT
+- name: "Get available kernel versions with APT"
   command: apt-cache showpkg linux-headers-*
   changed_when: false
   when:
     - ansible_os_family == 'Debian'
   register: apt_kernel_list
 
-- name: Get installed packages with APT
+- name: "Get installed packages with APT"
   command: dpkg -l
   changed_when: false
   when:
     - ansible_os_family == 'Debian'
   register: apt_packages_list
 
-- name: Set target APT kernel version
+- name: "Set target APT kernel version"
   set_fact: _kernel="{{ apt_kernel_list |
                      deb_kernel(kernel_version, ansible_kernel) }}"
   when: apt_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with APT
+- name: "Ensure kernel packages versions with APT"
   apt:
     name: "{{ apt_kernel_list | deb_kernel_pkg(
            kernel_version, ansible_kernel, ansible_distribution,
@@ -38,7 +38,7 @@
     - name: linux-headers
       when: "{{ install_kernel_headers | bool }}"
 
-- name: Ensure any other kernel packages are removed with APT
+- name: "Ensure any other kernel packages are removed with APT"
   apt:
     name: "{{ apt_packages_list | deb_installed_kernel(
            apt_kernel_list, kernel_version, ansible_kernel) }}"
