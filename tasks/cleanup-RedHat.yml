@@ -1,0 +1,13 @@
+---
+
+- name: "Check number of kernel packages we have installed"
+  shell: 'test $(rpm -q kernel | wc -l) -gt 1'
+  register: _kernel_number_installed
+  failed_when: false
+  changed_when: false
+
+- name: "Remove any other previous kernels that might still be installed"
+  command: "package-cleanup --oldkernels --count=1 -y"
+  when:
+    - ansible_kernel | kernel_match(_kernel)
+    - _kernel_number_installed.rc == 0

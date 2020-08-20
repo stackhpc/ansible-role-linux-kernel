@@ -28,3 +28,6 @@
   when:
     - reboot_on_kernel_update | bool
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
+
+- name: "Include OS-specific kernel package cleanup plays"
+  include_tasks: "cleanup-{{ ansible_os_family }}.yml"
