@@ -34,7 +34,7 @@
   when: ansible_distribution == 'CentOS'
 
 - name: "Get available kernel versions with YUM"
-  command: "yum list --enablerepo=C7.* --enablerepo={{ kernel_custom_repo_name | default('custom.*',true) }} --showduplicates kernel"
+  command: "yum list --enablerepo=C7.* --enablerepo={{ kernel_custom_repo_name | default('custom.*',true) }}.* --showduplicates kernel"
   changed_when: false
   args:
     warn: false
@@ -52,7 +52,7 @@
   yum:
     name: "{{ item.name }}-{{ _kernel }}"
     enablerepo: "{{ yum_kernel_list |
-                 rhel_repo(kernel_version, ansible_kernel) }}"
+                 rhel_repo(kernel_version, ansible_kernel) }}.*"
     allow_downgrade: "{{ item.downgrade | default(false) }}"
   when:
     - ansible_os_family == 'RedHat'
