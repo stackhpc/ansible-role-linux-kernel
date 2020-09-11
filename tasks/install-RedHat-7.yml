@@ -63,10 +63,19 @@
     # to be downgrades
     - name: kernel
       when: true
+    - name: "kernel-tools"
+      when: true
+      downgrade: true
     - name: kernel-devel
       when: "{{ install_kernel_headers | bool }}"
     - name: kernel-headers
       when: "{{ install_kernel_headers | bool }}"
+      downgrade: true
+    - name: kernel-debuginfo
+      when: "{{ install_kernel_debuginfo | bool }}"
+      downgrade: true
+    - name: kernel-tools-debuginfo
+      when: "{{ install_kernel_debuginfo | bool }}"
       downgrade: true
     - name: perf
       when: "{{ install_perf | bool }}"

@@ -1,6 +1,7 @@
 ---
 # Install kernel headers
 install_kernel_headers: true
+install_kernel_debuginfo: false
 install_perf: false
 install_bpftool: false
 
