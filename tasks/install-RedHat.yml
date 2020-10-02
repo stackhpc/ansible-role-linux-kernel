@@ -6,6 +6,7 @@
 - name: "Get path to kernel image"
   command: "grubby --info ALL"
   changed_when: false
+  check_mode: no
   register: kernel_grubby_info
 
 - name: "Set path to kernel image"
@@ -15,6 +16,7 @@
 - name: "Get default kernel from grubby"
   command: "grubby --default-kernel"
   changed_when: false
+  check_mode: no
   register: kernel_grubby_default
 
 - name: "Set default kernel in bootloader via grubby"

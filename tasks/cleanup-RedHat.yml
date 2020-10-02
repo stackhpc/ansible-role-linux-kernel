@@ -5,6 +5,7 @@
   register: _kernel_number_installed
   failed_when: false
   changed_when: false
+  check_mode: no
 
 - name: "Remove any other previous kernels that might still be installed"
   command: "package-cleanup --oldkernels --count=1 -y"

@@ -42,11 +42,13 @@
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version == "7"
   register: yum_kernel_list
+  check_mode: no
 
 - name: "Set target YUM kernel version"
   set_fact: _kernel="{{ yum_kernel_list |
                      rhel_kernel(kernel_version, ansible_kernel) }}"
   when: yum_kernel_list is not skipped
+  check_mode: no
 
 - name: "Ensure kernel packages versions with YUM"
   yum:
